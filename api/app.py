@@ -37,7 +37,15 @@ class ImageResource(Resource):
         self.parser.add_argument(self.url_param)
 
     def post(self):
-        return self.parser.parse_args()
+        url = self.parser.parse_args().get(self.url_param)
+        if url:
+
+            task = celery_app.send_task('tasks.get_url_text', args=[url], kwargs={})
+            return {'Response': 'OK',
+                    'Message': f'Task ID: {task.task_id}'}
+        else:
+            return {'Response': 'ERROR',
+                    'Message': 'Incorrect param'}
 
 
 class TaskResource(Resource):
