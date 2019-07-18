@@ -37,7 +37,7 @@ def test_get_url_text_img():
     assert task.status == 'FAILURE'
 
 
-def test_get_url_text_connection_err():
+def test_get_url_text_connection_error():
     url = 'http://thispagedoesntexist.com/'
     task = celery_app.send_task('tasks.get_url_text', args=[url], kwargs={})
     while task.status == 'PENDING':
