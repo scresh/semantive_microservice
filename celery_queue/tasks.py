@@ -45,7 +45,7 @@ def get_url_images(self, url):
         zip_file = NamedTemporaryFile(delete=False, suffix='.zip')
         with ZipFile(zip_file.name, 'w') as zip_object:
             for i, url in enumerate(urls):
-                img_bytes = requests.get(url, stream=True).content
+                img_bytes = requests.get(url, stream=True, timeout=TIMEOUT).content
                 add_image_to_zip_object(img_bytes, i, zip_object)
 
         return zip_file.name
