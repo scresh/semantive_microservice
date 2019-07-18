@@ -1,4 +1,6 @@
+from zipfile import ZipFile
 from app import HOST, PORT
+from io import BytesIO
 from time import sleep
 import requests
 
@@ -21,3 +23,20 @@ def test_text_download_filename():
 
     download_response = requests.get(download_url)
     assert f'{task_id}.txt' in download_response.headers['content-disposition']
+
+
+def test_images_download_zip_crf():
+    print('hej')
+    response = requests.post(f'http://{HOST}:{PORT}/images', data={'url': 'https://www.kedifilm.com/about'})
+    assert response.json().get('Response') == 'OK'
+    task_url = response.json().get('Message')
+
+    while requests.get(task_url).json().get('Response') == 'PENDING':
+        sleep(0.1)
+
+    download_url = requests.get(task_url).json().get('Message')
+
+    download_response = requests.get(download_url).content
+
+    with ZipFile(BytesIO(download_response), 'r') as zip_object:
+        assert zip_object.testzip() is None
