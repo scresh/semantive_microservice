@@ -1,9 +1,12 @@
-from flask import Flask
 from flask_restful import Resource, Api, reqparse
+from celery import Celery
+from flask import Flask
 
+PORT = 5002
 
 app = Flask(__name__)
 api = Api(app)
+celery_app = Celery('tasks', backend='redis://localhost', broker='redis://localhost')
 
 
 class TextResource(Resource):
@@ -13,7 +16,15 @@ class TextResource(Resource):
         self.parser.add_argument(self.url_param)
 
     def post(self):
-        return self.parser.parse_args()
+        url = self.parser.parse_args().get(self.url_param)
+        if url:
+
+            task = celery_app.send_task('tasks.get_url_text', args=[url], kwargs={})
+            return {'Response': 'OK',
+                    'Message': f'Task ID: {task.task_id}'}
+        else:
+            return {'Response': 'ERROR',
+                    'Message': 'Incorrect param'}
 
 
 class ImageResource(Resource):
@@ -53,4 +64,4 @@ api.add_resource(DownloadResource, '/download')
 
 
 if __name__ == '__main__':
-    app.run(port='5002')    # TODO: Move to config file
+    app.run(port=str(PORT))
