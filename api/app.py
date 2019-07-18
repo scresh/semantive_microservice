@@ -40,9 +40,9 @@ class ImageResource(Resource):
         url = self.parser.parse_args().get(self.url_param)
         if url:
 
-            task = celery_app.send_task('tasks.get_url_text', args=[url], kwargs={})
+            task = celery_app.send_task('tasks.get_url_images', args=[url], kwargs={})
             return {'Response': 'OK',
-                    'Message': f'Task ID: {task.task_id}'}
+                    'Message': f'http://{HOST}:{PORT}/task?task_id={task.task_id}'}
         else:
             return {'Response': 'ERROR',
                     'Message': 'Incorrect param'}
@@ -93,7 +93,7 @@ class DownloadResource(Resource):
 
 api.add_resource(TextResource, '/text')
 api.add_resource(TaskResource, '/task')
-api.add_resource(ImageResource, '/image')
+api.add_resource(ImageResource, '/images')
 api.add_resource(DownloadResource, '/download')
 
 if __name__ == '__main__':
