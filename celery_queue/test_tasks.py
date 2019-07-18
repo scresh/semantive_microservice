@@ -1,7 +1,6 @@
-from time import sleep
-
-from celery import Celery
 from celery.result import AsyncResult
+from celery import Celery
+from time import sleep
 
 celery_app = Celery('tasks', backend='redis://localhost', broker='redis://localhost')
 

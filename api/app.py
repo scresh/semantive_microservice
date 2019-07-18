@@ -1,7 +1,10 @@
 from flask_restful import Resource, Api, reqparse
+from celery.result import AsyncResult
+from flask import Flask, send_file
+from celery.states import SUCCESS
 from celery import Celery
-from flask import Flask
 
+HOST = 'localhost'
 PORT = 5002
 
 app = Flask(__name__)
@@ -21,7 +24,7 @@ class TextResource(Resource):
 
             task = celery_app.send_task('tasks.get_url_text', args=[url], kwargs={})
             return {'Response': 'OK',
-                    'Message': f'Task ID: {task.task_id}'}
+                    'Message': f'http://{HOST}:{PORT}/task?task_id={task.task_id}'}
         else:
             return {'Response': 'ERROR',
                     'Message': 'Incorrect param'}
@@ -44,7 +47,19 @@ class TaskResource(Resource):
         self.parser.add_argument(self.task_param)
 
     def get(self):
-        return self.parser.parse_args()
+        task_id = self.parser.parse_args().get(self.task_param)
+        if task_id:
+            result = AsyncResult(task_id, app=celery_app)
+
+            if result.status == SUCCESS:
+                return {'Response': result.status,
+                        'Message': f'http://{HOST}:{PORT}/download?task_id={task_id}'}
+            else:
+                return {'Response': result.status,
+                        'Message': str(result.info)}
+        else:
+            return {'Response': 'ERROR',
+                    'Message': 'Incorrect param'}
 
 
 class DownloadResource(Resource):
@@ -54,14 +69,24 @@ class DownloadResource(Resource):
         self.parser.add_argument(self.task_param)
 
     def get(self):
-        return self.parser.parse_args()
+        task_id = self.parser.parse_args().get(self.task_param)
+        if task_id:
+            result = AsyncResult(task_id, app=celery_app)
+            file_type = result.result.split('.')[-1]
+
+            if result.status == SUCCESS:
+                return send_file(
+                    result.result,
+                    attachment_filename=f'{task_id}.{file_type}',
+                    as_attachment=True)
+
+        return {}
 
 
 api.add_resource(TextResource, '/text')
-api.add_resource(ImageResource, '/image')
 api.add_resource(TaskResource, '/task')
+api.add_resource(ImageResource, '/image')
 api.add_resource(DownloadResource, '/download')
-
 
 if __name__ == '__main__':
     app.run(port=str(PORT))
