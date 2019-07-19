@@ -3,13 +3,17 @@ from celery.result import AsyncResult
 from flask import Flask, send_file
 from celery.states import SUCCESS
 from celery import Celery
+import os
 
-HOST = 'localhost'
-PORT = 5002
+HOST = os.environ.get('HOST', 'localhost')
+PORT = os.environ.get('PORT', 5002)
+CELERY_BROKER = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379')
+CELERY_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
 
 app = Flask(__name__)
 api = Api(app)
-celery_app = Celery('tasks', backend='redis://redis:6379', broker='redis://redis:6379')
+
+celery_app = Celery('tasks', backend=CELERY_BACKEND, broker=CELERY_BROKER)
 
 
 class TextResource(Resource):

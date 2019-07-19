@@ -1,16 +1,18 @@
-import imghdr
 from tempfile import NamedTemporaryFile
-from zipfile import ZipFile
-
 from celery.exceptions import Ignore
 from celery import Celery, states
 from bs4 import BeautifulSoup
+from zipfile import ZipFile
 import requests
+import imghdr
+import os
 
 TIMEOUT = 5
 FORBIDDEN_TAGS = ["script", "style", "table", "a", "img", "button", "header", "footer", "nav"]
 
-celery_app = Celery('tasks', backend='redis://redis:6379', broker='redis://redis:6379')
+CELERY_BROKER = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379')
+CELERY_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
+celery_app = Celery('tasks', backend=CELERY_BACKEND, broker=CELERY_BROKER)
 
 
 @celery_app.task(bind=True)
