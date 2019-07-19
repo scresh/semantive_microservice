@@ -12,7 +12,6 @@ CELERY_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379')
 
 app = Flask(__name__)
 api = Api(app)
-
 celery_app = Celery('tasks', backend=CELERY_BACKEND, broker=CELERY_BROKER)
 
 
