@@ -10,7 +10,7 @@ import requests
 TIMEOUT = 5
 FORBIDDEN_TAGS = ["script", "style", "table", "a", "img", "button", "header", "footer", "nav"]
 
-celery_app = Celery('tasks', backend='redis://localhost', broker='redis://localhost')
+celery_app = Celery('tasks', backend='redis://redis:6379', broker='redis://redis:6379')
 
 
 @celery_app.task(bind=True)

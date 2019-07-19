@@ -2,7 +2,7 @@ from celery.result import AsyncResult
 from celery import Celery
 from time import sleep
 
-celery_app = Celery('tasks', backend='redis://localhost', broker='redis://localhost')
+celery_app = Celery('tasks', backend='redis://redis:6379', broker='redis://redis:6379')
 
 
 class TestGetUrlText:

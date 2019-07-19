@@ -9,7 +9,7 @@ PORT = 5002
 
 app = Flask(__name__)
 api = Api(app)
-celery_app = Celery('tasks', backend='redis://localhost', broker='redis://localhost')
+celery_app = Celery('tasks', backend='redis://redis:6379', broker='redis://redis:6379')
 
 
 class TextResource(Resource):
