@@ -20,7 +20,7 @@ API Endpoints:
 
 Use Postman or write script to send POST requests.
 
-|<img  width="500" src="https://raw.githubusercontent.com/scresh/semantive_microservice/master/postman_example.png?token=AEUQRKCPVR7SXHGVZVVDTEK5HJOPE"> |
+|<img  width="500" src="https://raw.githubusercontent.com/scresh/semantive_microservice/master/postman_example.png"> |
 |-------------------------|
 
 ## Testing
